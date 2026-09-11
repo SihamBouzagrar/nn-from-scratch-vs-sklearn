@@ -417,7 +417,7 @@ Plus la loss diminue, plus le modèle apprend généralement à reproduire les d
 
 ### Comparaison
 
-![Training Loss Comparison](docs/images/TrainingLoss-Comparison.png)
+![Training Loss Comparison](docs/images/TrainingLoss_Comparaison.png)
 
 ---
 
@@ -516,17 +516,10 @@ L(\theta-\epsilon)
 $$
 ## Résultats du Grid Search
 
-### Grid Search from Scratch
-
-![Grid Search Scratch](docs/images/grid-search-scratch.png)
-
-### Scikit-Learn GridSearchCV
-
-![Scikit-Learn Grid Search](docs/images/grid-search-sklearn.png)
 
 ### Comparaison
 
-![Comparaison Grid Search](docs/images/Grid-Search-Comparison.png)
+![Comparaison Grid Search](docs/images/Grid_Search_Comparaison.png)
 ---
 
 # 14. Étape 10 — Classification avec Make Moons
@@ -570,7 +563,7 @@ Le modèle permet de dépasser les limites du Perceptron sur des données non li
 
 ### Frontière de décision du MLP
 
-![Frontière de décision du MLP](docs/images/MLP-Decision.png)
+![Frontière de décision du MLP](docs/images/MLP_Decision.png)
 ---
 
 # 15. Étape 11 — Perceptron vs MLP
@@ -658,7 +651,7 @@ L'objectif est de conserver approximativement la même proportion des classes da
 Cela est particulièrement utile lorsque les classes ne sont pas parfaitement équilibrées.
 
 
-![stratified-kfold](docs/images/stratified-MLP.png)
+![stratified-kfold](docs/images/Stratified_MLP.png)
 
 ---
 
@@ -752,7 +745,7 @@ sklearn.neural_network.MLPClassifier
 
 Cette distinction permet de conserver la séparation entre la partie pédagogique et la partie framework.
 
-![Grid-search-comparison](docs/images/Grid-Search-Comparison..png)
+![Grid-search-comparison](docs/images/Grid_Search_Comparaison.png)
 
 
 
@@ -1224,7 +1217,7 @@ La démarche permet de comprendre ce qui se passe **à l'intérieur d'un réseau
 
 **Siham Bouzagrar**
 
-Étudiante en ingénierie — EHTP
-Orientation : SIG / Data Science / Développement logiciel
+Étudiante en  ingénierie — EHTP
+: SIG / Data Science / Développement logiciel
 
 
