@@ -37,3 +37,23 @@ def binary_cross_entropy(y_true, y_pred):
     )
 
     return -np.mean(loss)
+def mean_squared_error(y_true, y_pred):
+    """
+    Compute Mean Squared Error.
+
+    MSE = mean((y_true - y_pred)^2)
+    """
+
+    y_true = np.asarray(
+        y_true,
+        dtype=float,
+    )
+
+    y_pred = np.asarray(
+        y_pred,
+        dtype=float,
+    )
+
+    return np.mean(
+        (y_true - y_pred) ** 2
+    )

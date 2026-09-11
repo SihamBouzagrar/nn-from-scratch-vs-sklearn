@@ -1,37 +1,44 @@
 
 import numpy as np
 
+
 from src.engine.activations import (
     relu,
     relu_derivative,
-    sigmoid,
+    identity,
 )
-from src.engine.losses import binary_cross_entropy
+from src.engine.losses import mean_squared_error
 
 
-class MLPClassifierScratch:
+class MLPRegressorScratch:
     """
-    Simple Multi-Layer Perceptron classifier implemented from scratch.
+    Simple Multi-Layer Perceptron regressor implemented from scratch.
 
     Architecture:
         input -> hidden -> output
 
     Hidden layer:
-        ReLU
+        ReLU activation
 
     Output layer:
-        Sigmoid
+        Identity activation
+
+    Loss:
+        Mean Squared Error (MSE)
+
+    Optimization:
+        Batch Gradient Descent
     """
 
     def __init__(
         self,
-        hidden_layer_size=2,
-        learning_rate=0.1,
+        hidden_layer_size=10,
+        learning_rate=0.01,
         epochs=1000,
         random_state=None,
     ):
         """
-        Initialize the MLP classifier.
+        Initialize the MLP regressor.
 
         Parameters
         ----------
@@ -69,11 +76,16 @@ class MLPClassifierScratch:
         """
 
         if self.random_state is not None:
-            rng = np.random.default_rng(self.random_state)
+            rng = np.random.default_rng(
+                self.random_state
+            )
         else:
             rng = np.random.default_rng()
 
-        # W1 : input -> hidden
+        # =====================================
+        # Input -> Hidden
+        # =====================================
+
         self.weights_input_hidden = (
             rng.standard_normal(
                 (
@@ -84,12 +96,14 @@ class MLPClassifierScratch:
             * 0.1
         )
 
-        # b1
         self.bias_hidden = np.zeros(
             self.hidden_layer_size
         )
 
-        # W2 : hidden -> output
+        # =====================================
+        # Hidden -> Output
+        # =====================================
+
         self.weights_hidden_output = (
             rng.standard_normal(
                 (
@@ -100,12 +114,16 @@ class MLPClassifierScratch:
             * 0.1
         )
 
-        # b2
         self.bias_output = np.zeros(1)
 
     def _forward(self, X):
         """
         Forward propagation.
+
+        Parameters
+        ----------
+        X : ndarray
+            Input features.
 
         Returns
         -------
@@ -113,13 +131,13 @@ class MLPClassifierScratch:
             Weighted sum of hidden layer.
 
         a_hidden : ndarray
-            Activation of hidden layer.
+            ReLU activation of hidden layer.
 
         z_output : ndarray
             Weighted sum of output layer.
 
         a_output : ndarray
-            Sigmoid output probabilities.
+            Final regression prediction.
         """
 
         # =====================================
@@ -142,7 +160,8 @@ class MLPClassifierScratch:
             + self.bias_output
         )
 
-        a_output = sigmoid(z_output)
+        # Identity activation
+        a_output = identity(z_output)
 
         return (
             z_hidden,
@@ -162,8 +181,24 @@ class MLPClassifierScratch:
         """
         Backpropagation.
 
-        Computes the gradients of the loss
+        Computes the gradients of the MSE loss
         with respect to weights and biases.
+
+        For MSE:
+
+            L = 1/n * sum((y_pred - y)^2)
+
+        Therefore:
+
+            dL/dA_output = 2/n * (y_pred - y)
+
+        Since the output activation is Identity:
+
+            dA_output/dZ_output = 1
+
+        Therefore:
+
+            dL/dZ_output = dL/dA_output
         """
 
         X = np.asarray(
@@ -182,11 +217,12 @@ class MLPClassifierScratch:
         # 1. Output layer error
         # =====================================
 
-        # Sigmoid + Binary Cross-Entropy
-        #
-        # dL/dZ_output = A_output - y
-
-        delta_output = a_output - y
+        # dL/dZ_output
+        delta_output = (
+            2.0
+            * (a_output - y)
+            / n_samples
+        )
 
         # =====================================
         # 2. Output layer gradients
@@ -195,13 +231,13 @@ class MLPClassifierScratch:
         # dL/dW2
         dW_output = (
             a_hidden.T @ delta_output
-        ) / n_samples
+        )
 
         # dL/db2
         db_output = np.sum(
             delta_output,
             axis=0,
-        ) / n_samples
+        )
 
         # =====================================
         # 3. Propagate to hidden layer
@@ -230,13 +266,13 @@ class MLPClassifierScratch:
         # dL/dW1
         dW_hidden = (
             X.T @ delta_hidden
-        ) / n_samples
+        )
 
         # dL/db1
         db_hidden = np.sum(
             delta_hidden,
             axis=0,
-        ) / n_samples
+        )
 
         return (
             dW_hidden,
@@ -257,25 +293,29 @@ class MLPClassifierScratch:
         gradient descent.
         """
 
-        # W1
+        # =====================================
+        # Hidden layer
+        # =====================================
+
         self.weights_input_hidden -= (
             self.learning_rate
             * dW_hidden
         )
 
-        # b1
         self.bias_hidden -= (
             self.learning_rate
             * db_hidden
         )
 
-        # W2
+        # =====================================
+        # Output layer
+        # =====================================
+
         self.weights_hidden_output -= (
             self.learning_rate
             * dW_output
         )
 
-        # b2
         self.bias_output -= (
             self.learning_rate
             * db_output
@@ -283,17 +323,31 @@ class MLPClassifierScratch:
 
     def _compute_loss(self, y, a_output):
         """
-        Compute binary cross-entropy loss.
+        Compute Mean Squared Error.
         """
 
-        return binary_cross_entropy(
+        return mean_squared_error(
             y,
             a_output.ravel(),
         )
 
     def fit(self, X, y):
         """
-        Train the MLP using gradient descent.
+        Train the MLP regressor using
+        batch gradient descent.
+
+        Parameters
+        ----------
+        X : ndarray
+            Training features.
+
+        y : ndarray
+            Target values.
+
+        Returns
+        -------
+        self
+            Fitted model.
         """
 
         X = np.asarray(
@@ -379,9 +433,9 @@ class MLPClassifierScratch:
 
         return self
 
-    def predict_proba(self, X):
+    def predict(self, X):
         """
-        Return output probabilities.
+        Return continuous predictions.
         """
 
         X = np.asarray(
@@ -390,36 +444,41 @@ class MLPClassifierScratch:
         )
 
         if self.weights_input_hidden is None:
-            self._initialize_parameters(
-                X.shape[1]
+            raise ValueError(
+                "The model must be fitted before prediction."
             )
 
         _, _, _, a_output = self._forward(X)
 
         return a_output.ravel()
 
-    def predict(self, X):
-        """
-        Convert probabilities into binary predictions.
-        """
-
-        probabilities = self.predict_proba(X)
-
-        return (
-            probabilities >= 0.5
-        ).astype(int)
-
     def score(self, X, y):
         """
-        Return classification accuracy.
+        Return the coefficient of determination R².
+
+        R² = 1 - SS_res / SS_tot
         """
 
-        y = np.asarray(y)
+        y = np.asarray(
+            y,
+            dtype=float,
+        )
 
         predictions = self.predict(X)
 
-        return np.mean(
-            predictions == y
+        ss_res = np.sum(
+            (y - predictions) ** 2
+        )
+
+        ss_tot = np.sum(
+            (y - np.mean(y)) ** 2
+        )
+
+        if ss_tot == 0:
+            return 0.0
+
+        return 1.0 - (
+            ss_res / ss_tot
         )
 
     def get_params(self, deep=True):
